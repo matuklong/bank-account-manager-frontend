@@ -1,3 +1,3 @@
-import Account from '~/lib/pages/account';
+import AccountList from '~/lib/pages/account';
 
-export default Account;
+export default AccountList;
