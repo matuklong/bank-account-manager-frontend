@@ -8,6 +8,7 @@ import {
   Icon,
   IconButton,
   Button,
+  Link,
   Menu,
   MenuButton,
   MenuList,
@@ -17,6 +18,7 @@ import {
   useColorModeValue,
   Stack,
 } from '@chakra-ui/react';
+import NextLink from 'next/link';
 import { FaUser } from 'react-icons/fa';
 import { FaMoneyBillTrendUp } from 'react-icons/fa6';
 
@@ -24,27 +26,36 @@ import ThemeToggle from './ThemeToggle';
 
 interface Props {
   children: React.ReactNode;
+  linkUrl: string;
 }
 
-const Links = ['Dashboard', 'Accounts'];
+interface LinkProps {
+  linkUrl: string;
+  linkText: string;
+}
+
+const Links: LinkProps[] = [
+  { linkUrl: 'dashboard', linkText: 'Dashboard' },
+  { linkUrl: 'account', linkText: 'Account' },
+];
 
 const NavLink = (props: Props) => {
-  const { children } = props;
+  const { linkUrl, children } = props;
 
   return (
-    <Box
-      as="a"
-      px={2}
-      py={1}
-      rounded="md"
-      _hover={{
-        textDecoration: 'none',
-        bg: useColorModeValue('gray.200', 'gray.700'),
-      }}
-      href="#"
-    >
-      {children}
-    </Box>
+    <NextLink href={linkUrl} passHref>
+      <Link
+        px={2}
+        py={1}
+        rounded="md"
+        _hover={{
+          textDecoration: 'none',
+          bg: useColorModeValue('gray.200', 'gray.700'),
+        }}
+      >
+        {children}
+      </Link>
+    </NextLink>
   );
 };
 
@@ -75,7 +86,9 @@ const Header = () => {
           </Box>
           <HStack as="nav" spacing={4} display={{ base: 'none', md: 'flex' }}>
             {Links.map((link) => (
-              <NavLink key={link}>{link}</NavLink>
+              <NavLink key={link.linkUrl} linkUrl={link.linkUrl}>
+                {link.linkText}
+              </NavLink>
             ))}
           </HStack>
         </HStack>
@@ -113,7 +126,9 @@ const Header = () => {
         <Box pb={4} display={{ md: 'none' }}>
           <Stack as="nav" spacing={4}>
             {Links.map((link) => (
-              <NavLink key={link}>{link}</NavLink>
+              <NavLink key={link.linkUrl} linkUrl={link.linkUrl}>
+                {link.linkText}
+              </NavLink>
             ))}
           </Stack>
         </Box>
