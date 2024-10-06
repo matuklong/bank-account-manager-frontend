@@ -14,7 +14,7 @@ export interface ITransaction {
   account: Account;
   transactionType?: TransactionType;
 
-  updateTransactionType(transactionType: TransactionType): void;
+  cloneUpdateTransactionType(transactionType: TransactionType): void;
 }
 
 export class Transaction implements ITransaction {
@@ -42,9 +42,14 @@ export class Transaction implements ITransaction {
 
   transactionType?: TransactionType;
 
-  updateTransactionType = (transactionType: TransactionType): void => {
-    this.transactionTypeId = transactionType.id;
-    this.transactionType = transactionType;
+  cloneUpdateTransactionType = (
+    transactionType: TransactionType
+  ): Transaction => {
+    return {
+      ...this,
+      transactionTypeId: transactionType.id,
+      transactionType,
+    };
   };
 
   static fromJson = (json: ITransaction): Transaction => {
@@ -53,6 +58,17 @@ export class Transaction implements ITransaction {
       createdAt: new Date(json.createdAt),
     });
   };
+}
+
+export interface CreateOrUpdateTransactionDTO {
+  id?: number;
+  amount: number;
+  transactionDate: Date;
+  description?: string;
+  capitalizationEvent: boolean;
+  transferenceBetweenAccounts: boolean;
+  accountId: number;
+  transactionTypeId?: number;
 }
 
 export interface TransactionType {

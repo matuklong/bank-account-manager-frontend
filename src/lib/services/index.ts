@@ -1,6 +1,10 @@
 import axios from 'axios';
 
-import type { Account, TransactionType } from '~/lib/types';
+import type {
+  Account,
+  CreateOrUpdateTransactionDTO,
+  TransactionType,
+} from '~/lib/types';
 import { Transaction } from '~/lib/types';
 
 const apiClient = axios.create({
@@ -12,7 +16,28 @@ const apiClient = axios.create({
 
 const getAllAccounts = async (): Promise<Account[]> => {
   const response = await apiClient.get<Account[]>('/account');
-  return response.data;
+  return response.data.map(
+    (rest): Account => ({
+      ...rest,
+      lastTransactionDate: rest.lastTransactionDate
+        ? new Date(rest.lastTransactionDate)
+        : undefined,
+    })
+  );
+};
+
+const getAccountById = async (accountId: number): Promise<Account[]> => {
+  const response = await apiClient.get<Account[]>(
+    `/account?accountId=${accountId}`
+  );
+  return response.data.map(
+    (rest): Account => ({
+      ...rest,
+      lastTransactionDate: rest.lastTransactionDate
+        ? new Date(rest.lastTransactionDate)
+        : undefined,
+    })
+  );
 };
 
 const getTransactionsByAccountAndDate = async (
@@ -36,12 +61,36 @@ const updateTrasanctionType = async (
   const updateURL = `/transaction/${transaction.id}/type/${transactionTypeId}`;
   const response = await apiClient.post<Transaction>(updateURL);
 
-  return response.data;
+  return Transaction.fromJson(response.data);
 };
 
 const getTransactionTypeList = async (): Promise<TransactionType[]> => {
   const response = await apiClient.get<TransactionType[]>('/transaction-type');
   return response.data;
+};
+
+const addOrUpdateTransaction = async (
+  createOrUpdateTransactionDTO: CreateOrUpdateTransactionDTO
+): Promise<Transaction | undefined> => {
+  const updateURL = `/transaction`;
+  const response = await apiClient.post<Transaction[]>(updateURL, [
+    createOrUpdateTransactionDTO,
+  ]);
+
+  if (response.data.length > 0) return Transaction.fromJson(response.data[0]);
+  return undefined;
+};
+
+const deleteTransaction = async (
+  transaction: Transaction
+): Promise<boolean> => {
+  const updateURL = `/transaction`;
+  const queryParans = `?transactionId=${transaction.id}&accountId=${transaction.accountId}`;
+  const response = await apiClient.delete<Transaction[]>(
+    updateURL + queryParans
+  );
+
+  return response.status >= 200 && response.status <= 299;
 };
 
 // const findById = async (id: any) => {
@@ -76,9 +125,12 @@ const getTransactionTypeList = async (): Promise<TransactionType[]> => {
 
 const BankAccountService = {
   getAllAccounts,
+  getAccountById,
   getTransactionsByAccountAndDate,
   updateTrasanctionType,
   getTransactionTypeList,
+  addOrUpdateTransaction,
+  deleteTransaction,
 };
 
 export default BankAccountService;

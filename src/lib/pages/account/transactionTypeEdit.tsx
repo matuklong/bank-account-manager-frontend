@@ -1,6 +1,6 @@
 'use client';
 
-import { IconButton, useBoolean, Select } from '@chakra-ui/react';
+import { IconButton, useBoolean, Select, useToast } from '@chakra-ui/react';
 import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
 import { FaEdit, FaTimes, FaCheck } from 'react-icons/fa';
@@ -10,7 +10,7 @@ import type { Transaction, TransactionType } from '~/lib/types';
 
 type TransactionTypeEditProps = {
   transactionItem: Transaction;
-  updateTransactionType: (transaction: Transaction) => void;
+  updateTransactionType: (transaction: Transaction) => Promise<Transaction>;
 };
 
 type TransactionTypeEditListProps = {
@@ -74,12 +74,13 @@ const TransactionTypeEdit = ({
   const [selectedOption, setSelectedOption] = useState<number | undefined>(
     transactionItem.transactionTypeId
   );
+  const toast = useToast();
 
   const handleSelectChange = (id: number) => {
     setSelectedOption(id);
   };
 
-  const handleEditConfirm = (
+  const handleEditConfirm = async (
     e: React.MouseEvent<HTMLButtonElement, MouseEvent>
   ) => {
     e.preventDefault();
@@ -90,8 +91,25 @@ const TransactionTypeEdit = ({
     const transactionTypeItem = data.find((item) => item.id === selectedOption);
     if (!transactionTypeItem) return;
 
-    transactionItem.updateTransactionType(transactionTypeItem);
-    updateTransactionType(transactionItem);
+    try {
+      const newTransactionItem =
+        transactionItem.cloneUpdateTransactionType(transactionTypeItem);
+      await updateTransactionType(newTransactionItem);
+    } catch (errorException) {
+      let errorMessage = 'Error changing the type: ';
+      if (error instanceof Error) errorMessage += error.message;
+      else errorMessage += 'Unknown error';
+
+      toast({
+        title: errorMessage,
+        position: 'top',
+        status: 'error',
+        duration: 3000,
+        isClosable: true,
+      });
+    } finally {
+      // console.log('done');
+    }
   };
 
   if (editMode) {
