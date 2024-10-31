@@ -21,11 +21,17 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 
 import BankAccountService from '~/lib/services';
-import type { Transaction, CreateOrUpdateTransactionDTO } from '~/lib/types';
+import type {
+  Transaction,
+  CreateOrUpdateTransactionDTO,
+  TransactionUploadFileDTO,
+  TransactionUploadFileResponseDTO,
+} from '~/lib/types';
 
 import TransactionAddOrUpdate from './transactionAddOrUpdate';
 import TransactionDelete from './transactionDelete';
 import TransactionTypeEdit from './transactionTypeEdit';
+import TransactionUploadFile from './transactionUploadFile';
 
 type TransactionListProps = {
   accountId: number;
@@ -51,9 +57,11 @@ const TransactionList = ({
   const [selectedTransaction, setSelectedTransaction] = useState<
     Transaction | undefined
   >();
+  const [isUploadFileOpen, setUploadFileOpen] = useBoolean();
+
   const toast = useToast();
 
-  const { isPending, isError, data, error } = useQuery({
+  const { isPending, isError, data, error, refetch } = useQuery({
     queryKey: ['transactions', accountId],
     queryFn: () =>
       BankAccountService.getTransactionsByAccountAndDate(
@@ -155,6 +163,22 @@ const TransactionList = ({
     },
   });
 
+  const uploadFileTransactionParse = async (
+    transactionUploadFile: TransactionUploadFileDTO
+  ): Promise<TransactionUploadFileResponseDTO> => {
+    return BankAccountService.uploadFileTransactionParse(transactionUploadFile);
+  };
+
+  const uploadFileTransactionProcess = async (
+    transactionUploadFile: TransactionUploadFileDTO
+  ): Promise<TransactionUploadFileResponseDTO> => {
+    const response = await BankAccountService.uploadFileTransactionProcess(
+      transactionUploadFile
+    );
+    refetch();
+    return response;
+  };
+
   const handleTransactionRadioClick = (transaction: Transaction) => {
     // console.log('handleTransactionRadioClick', transaction);
     setSelectedTransaction(transaction);
@@ -195,6 +219,10 @@ const TransactionList = ({
         });
     };
 
+  const handleUploadCsvFile = () => {
+    setUploadFileOpen.on();
+  };
+
   if (isPending) {
     return <CircularProgress />;
   }
@@ -226,6 +254,9 @@ const TransactionList = ({
           </Button>
           <Button colorScheme="red" onClick={handleDeleteTransaction}>
             Delete
+          </Button>
+          <Button colorScheme="yellow" onClick={handleUploadCsvFile}>
+            Upload Csv File
           </Button>
         </ButtonGroup>
       </Flex>
@@ -304,6 +335,16 @@ const TransactionList = ({
           onClose={setDeleteOpen.off}
           transactionItem={selectedTransaction}
           DeleteTransactionItem={DeleteTransactionItem.mutateAsync}
+        />
+      )}
+
+      {isUploadFileOpen && (
+        <TransactionUploadFile
+          isOpen={isUploadFileOpen}
+          onClose={setUploadFileOpen.off}
+          accountId={accountId}
+          uploadFileTransactionParse={uploadFileTransactionParse}
+          uploadFileTransactionProcess={uploadFileTransactionProcess}
         />
       )}
     </Flex>

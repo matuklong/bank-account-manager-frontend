@@ -71,6 +71,31 @@ export interface CreateOrUpdateTransactionDTO {
   transactionTypeId?: number;
 }
 
+export interface TransactionUploadFileDTO {
+  accountId: number;
+  fileUpload: File;
+}
+
+export interface TransactionUploadFileResponseDTO {
+  items: TransactionUploadFileResponseItemDTO[];
+}
+
+export interface TransactionUploadFileResponseCsvParsedDataDTO {
+  transactionDate: Date;
+  description: string;
+  amount: number;
+}
+
+export interface TransactionUploadFileResponseItemDTO {
+  lineNumber: number;
+  errorMessage?: string;
+  rawLine: string;
+  error: boolean;
+  success: boolean;
+  csvParsedData?: TransactionUploadFileResponseCsvParsedDataDTO;
+  transaction?: Transaction;
+}
+
 export interface TransactionType {
   id: number;
   transactionType: string;

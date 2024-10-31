@@ -4,6 +4,9 @@ import type {
   Account,
   CreateOrUpdateTransactionDTO,
   TransactionType,
+  TransactionUploadFileDTO,
+  TransactionUploadFileResponseDTO,
+  TransactionUploadFileResponseItemDTO,
 } from '~/lib/types';
 import { Transaction } from '~/lib/types';
 
@@ -93,35 +96,46 @@ const deleteTransaction = async (
   return response.status >= 200 && response.status <= 299;
 };
 
-// const findById = async (id: any) => {
-//   const response = await apiClient.get<Tutorial>(`/tutorials/${id}`);
-//   return response.data;
-// }
+const uploadFile = async (
+  urlEndpoint: string,
+  transactionUploadFile: TransactionUploadFileDTO
+): Promise<TransactionUploadFileResponseDTO> => {
+  const header = {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  };
 
-// const findByTitle = async (title: string) => {
-//   const response = await apiClient.get<Tutorial[]>(`/tutorials?title=${title}`);
-//   return response.data;
-// }
+  const formData = new FormData(); // make a bew FormData for every file.
+  formData.append(
+    'fileUpload',
+    transactionUploadFile.fileUpload,
+    transactionUploadFile.fileUpload.name
+  );
+  formData.append('accountId', transactionUploadFile.accountId.toString());
 
-// const create = async ({ title, description }: Tutorial) => {
-//   const response = await apiClient.post<any>("/tutorials", { title, description });
-//   return response.data;
-// }
+  const response = await apiClient.post<TransactionUploadFileResponseItemDTO[]>(
+    urlEndpoint,
+    formData,
+    header
+  );
+  if (response.data.length > 0) return { items: response.data };
+  return { items: [] };
+};
 
-// const update = async (id: any, { title, description, published }: Tutorial) => {
-//   const response = await apiClient.put<any>(`/tutorials/${id}`, { title, description, published });
-//   return response.data;
-// }
+const uploadFileTransactionParse = async (
+  transactionUploadFile: TransactionUploadFileDTO
+): Promise<TransactionUploadFileResponseDTO> => {
+  const urlEndpoint = `/transaction/parse-file`;
+  return uploadFile(urlEndpoint, transactionUploadFile);
+};
 
-// const deleteById = async (id: any) => {
-//   const response = await apiClient.delete<any>(`/tutorials/${id}`);
-//   return response.data;
-// }
-
-// const deleteAll = async () => {
-//   const response = await apiClient.delete<any>("/tutorials");
-//   return response.data;
-// }
+const uploadFileTransactionProcess = async (
+  transactionUploadFile: TransactionUploadFileDTO
+): Promise<TransactionUploadFileResponseDTO> => {
+  const urlEndpoint = `/transaction/upload-file`;
+  return uploadFile(urlEndpoint, transactionUploadFile);
+};
 
 const BankAccountService = {
   getAllAccounts,
@@ -131,6 +145,8 @@ const BankAccountService = {
   getTransactionTypeList,
   addOrUpdateTransaction,
   deleteTransaction,
+  uploadFileTransactionParse,
+  uploadFileTransactionProcess,
 };
 
 export default BankAccountService;

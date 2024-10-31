@@ -31,7 +31,7 @@ import type { CreateOrUpdateTransactionDTO, Transaction } from '~/lib/types';
 
 registerLocale('pt', pt);
 
-type TransactionAOrUpdateProps = {
+type TransactionAddOrUpdateProps = {
   transactionItem?: Transaction;
   accountId: number;
   isOpen: boolean;
@@ -56,7 +56,7 @@ const TransactionAddOrUpdate = ({
   AddOrUpdateTransactionItem,
   isOpen,
   onClose,
-}: TransactionAOrUpdateProps) => {
+}: TransactionAddOrUpdateProps) => {
   const transactionTypeQuery = useQuery({
     queryKey: ['transactions-type'],
     queryFn: () => BankAccountService.getTransactionTypeList(),
