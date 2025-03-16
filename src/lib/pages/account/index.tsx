@@ -15,6 +15,7 @@ import {
   useToast,
 } from '@chakra-ui/react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { AxiosError } from 'axios';
 import { useState } from 'react';
 
 import TransactionList from '~/lib/pages/account/transactionList';
@@ -80,6 +81,9 @@ const AccountList = () => {
   }
 
   if (isError) {
+    if (error instanceof AxiosError && error?.response?.status === 404)
+      return <span>We couldn`t find account, please add one</span>;
+
     return <span>Error: {error.message}</span>;
   }
 
