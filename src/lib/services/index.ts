@@ -11,7 +11,7 @@ import type {
 import { Transaction } from '~/lib/types';
 
 const apiClient = axios.create({
-  baseURL: 'https://localhost:7002',
+  baseURL: process.env.NEXT_PUBLIC_REACT_APP_API_BASE_URL,
   headers: {
     'Content-type': 'application/json',
   },
