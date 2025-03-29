@@ -66,10 +66,10 @@ You can start editing the page by modifying `src/lib/pages/index.tsx`. The page 
 > Get local IP from Docker to connect with API. Ex.: ```192.168.1.193```
 
 ```
-docker build -f ./Dockerfile ./ --build-arg NEXT_PUBLIC_REACT_APP_API_BASE_URL=http://192.168.1.193:8080 -t bank-account-manager/frontend:v20250316.4
+docker build -f ./Dockerfile ./ --build-arg NEXT_PUBLIC_REACT_APP_API_BASE_URL=http://192.168.1.193:8080 -t bank-account-manager/frontend:v20250329.1
 ```
 
 
 ```
-docker run -p 3000:3000 bank-account-manager/frontend:v20250316.1 
+docker run -p 3000:3000 bank-account-manager/frontend:v20250329.1 
 ```
