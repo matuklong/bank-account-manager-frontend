@@ -7,7 +7,8 @@ const withPWA = require('next-pwa')({
 
 /** @type {import('next').NextConfig} */
 module.exports = withPWA({
-  output: 'standalone', // mine worked fine without this line
+  output: 'standalone',
+  productionBrowserSourceMaps: false,
   swcMinify: true,
   reactStrictMode: true,
   eslint: {
