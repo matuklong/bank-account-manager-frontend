@@ -1,6 +1,12 @@
 'use client';
 
-import { IconButton, useBoolean, Select, useToast } from '@chakra-ui/react';
+import {
+  IconButton,
+  useBoolean,
+  Select,
+  useToast,
+  Flex,
+} from '@chakra-ui/react';
 import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
 import { FaEdit, FaTimes, FaCheck } from 'react-icons/fa';
@@ -140,15 +146,16 @@ const TransactionTypeEdit = ({
   }
 
   return (
-    <div>
-      {transactionItem.transactionType?.transactionType ?? '-'}
+    <Flex alignItems="center" justifyContent="space-between">
+      <span>{transactionItem.transactionType?.transactionType ?? '-'}</span>
       <IconButton
         aria-label="Edit Type"
         icon={<FaEdit />}
+        size="sm"
         ml={3}
         onClick={setEditMode.toggle}
       />
-    </div>
+    </Flex>
   );
 };
 

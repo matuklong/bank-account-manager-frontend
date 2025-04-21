@@ -66,7 +66,7 @@ const TransactionList = ({
     queryFn: () =>
       BankAccountService.getTransactionsByAccountAndDate(
         accountId,
-        new Date(1, 1, 2024)
+        new Date(2025, 1, 1)
       ),
   });
 
@@ -262,7 +262,7 @@ const TransactionList = ({
       </Flex>
 
       <TableContainer>
-        <Table size="sm">
+        <Table size="sm" variant="striped">
           <Thead>
             <Tr>
               <Th />
@@ -270,9 +270,9 @@ const TransactionList = ({
               <Th>Date</Th>
               <Th>CreatedAt</Th>
               <Th>Description</Th>
-              <Th>Balance</Th>
-              <Th>Transference</Th>
-              <Th>Capitalization</Th>
+              <Th isNumeric>Balance</Th>
+              <Th title="Transference">Transf.</Th>
+              <Th title="Capitalization">Cap.</Th>
               <Th isNumeric>Amount</Th>
               <Th>Type</Th>
             </Tr>
@@ -297,10 +297,19 @@ const TransactionList = ({
                 <Td>{transactionItem.transactionDate.toLocaleDateString()}</Td>
                 <Td>{transactionItem.createdAt.toLocaleDateString()}</Td>
                 <Td>{transactionItem.description}</Td>
-                <Td isNumeric>{transactionItem.balanceAtBeforeTransaction}</Td>
+                <Td isNumeric>
+                  {transactionItem.balanceAtBeforeTransaction.toLocaleString(
+                    undefined,
+                    { minimumFractionDigits: 2 }
+                  )}
+                </Td>
                 <Td>{transactionItem.transferenceBetweenAccounts}</Td>
                 <Td>{transactionItem.capitalizationEvent}</Td>
-                <Td isNumeric>{transactionItem.amount}</Td>
+                <Td isNumeric>
+                  {transactionItem.amount.toLocaleString(undefined, {
+                    minimumFractionDigits: 2,
+                  })}
+                </Td>
                 <Td>
                   <TransactionTypeEdit
                     transactionItem={transactionItem}

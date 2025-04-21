@@ -98,7 +98,7 @@ const AccountList = () => {
       w="full"
     >
       <TableContainer>
-        <Table size="sm">
+        <Table size="sm" variant="striped">
           <Thead>
             <Tr>
               <Th />
@@ -129,7 +129,11 @@ const AccountList = () => {
                 <Td>{accountItem.accountNumber}</Td>
                 <Td>{accountItem.description}</Td>
                 <Td>{accountItem.lastTransactionDate?.toLocaleDateString()}</Td>
-                <Td isNumeric>{accountItem.balance}</Td>
+                <Td isNumeric>
+                  {accountItem.balance?.toLocaleString(undefined, {
+                    minimumFractionDigits: 2,
+                  })}
+                </Td>
               </Tr>
             ))}
           </Tbody>
