@@ -18,7 +18,7 @@ const apiClient = axios.create({
 });
 
 const getAllAccounts = async (): Promise<Account[]> => {
-  const response = await apiClient.get<Account[]>('/account');
+  const response = await apiClient.get<Account[]>('/api/account');
   return response.data.map(
     (rest): Account => ({
       ...rest,
@@ -47,7 +47,7 @@ const getTransactionsByAccountAndDate = async (
   accountId: number,
   startTransactionDate: Date
 ): Promise<Transaction[]> => {
-  const response = await apiClient.get<Transaction[]>('/transaction', {
+  const response = await apiClient.get<Transaction[]>('/api/transaction', {
     params: {
       accountId,
       startTransactionDate,
@@ -61,14 +61,16 @@ const updateTrasanctionType = async (
   transaction: Transaction,
   transactionTypeId: number
 ): Promise<Transaction | undefined> => {
-  const updateURL = `/transaction/${transaction.id}/type/${transactionTypeId}`;
+  const updateURL = `/api/transaction/${transaction.id}/type/${transactionTypeId}`;
   const response = await apiClient.post<Transaction>(updateURL);
 
   return Transaction.fromJson(response.data);
 };
 
 const getTransactionTypeList = async (): Promise<TransactionType[]> => {
-  const response = await apiClient.get<TransactionType[]>('/transaction-type');
+  const response = await apiClient.get<TransactionType[]>(
+    '/api/transaction-type'
+  );
   return response.data;
 };
 
@@ -87,7 +89,7 @@ const addOrUpdateTransaction = async (
 const deleteTransaction = async (
   transaction: Transaction
 ): Promise<boolean> => {
-  const updateURL = `/transaction`;
+  const updateURL = `/api/transaction`;
   const queryParans = `?transactionId=${transaction.id}&accountId=${transaction.accountId}`;
   const response = await apiClient.delete<Transaction[]>(
     updateURL + queryParans
@@ -126,14 +128,14 @@ const uploadFile = async (
 const uploadFileTransactionParse = async (
   transactionUploadFile: TransactionUploadFileDTO
 ): Promise<TransactionUploadFileResponseDTO> => {
-  const urlEndpoint = `/transaction/parse-file`;
+  const urlEndpoint = `/api/transaction/parse-file`;
   return uploadFile(urlEndpoint, transactionUploadFile);
 };
 
 const uploadFileTransactionProcess = async (
   transactionUploadFile: TransactionUploadFileDTO
 ): Promise<TransactionUploadFileResponseDTO> => {
-  const urlEndpoint = `/transaction/upload-file`;
+  const urlEndpoint = `/api/transaction/upload-file`;
   return uploadFile(urlEndpoint, transactionUploadFile);
 };
 
