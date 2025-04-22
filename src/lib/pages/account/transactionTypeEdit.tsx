@@ -53,6 +53,7 @@ const TransactionTypeEditList = ({
     <Select
       placeholder={selectedItemId ? 'Select option' : undefined}
       onChange={handleSelectChange}
+      autoFocus
     >
       {dataList.map((item) => (
         <option

@@ -139,6 +139,20 @@ const uploadFileTransactionProcess = async (
   return uploadFile(urlEndpoint, transactionUploadFile);
 };
 
+const reprocessUndefinedTypes = async (
+  accountId: number,
+  startTransactionDate: Date
+): Promise<boolean> => {
+  const urlEndpoint = `/api/transaction/reprocess-undefined-types`;
+
+  const response = await apiClient.post(urlEndpoint, {
+    accountId,
+    startTransactionDate,
+  });
+
+  return response.status === 200;
+};
+
 const BankAccountService = {
   getAllAccounts,
   getAccountById,
@@ -149,6 +163,7 @@ const BankAccountService = {
   deleteTransaction,
   uploadFileTransactionParse,
   uploadFileTransactionProcess,
+  reprocessUndefinedTypes,
 };
 
 export default BankAccountService;

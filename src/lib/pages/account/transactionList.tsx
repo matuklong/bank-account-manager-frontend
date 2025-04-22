@@ -16,8 +16,10 @@ import {
   Button,
   useBoolean,
   useToast,
+  Input,
 } from '@chakra-ui/react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { isValid, parse } from 'date-fns';
 import { useState } from 'react';
 
 import BankAccountService from '~/lib/services';
@@ -41,6 +43,8 @@ type TransactionListProps = {
   handleAccountRefresh: (accountId: number) => void;
 };
 
+const initialTransdactionDate = new Date(2025, 1, 1);
+
 const TransactionList = ({
   accountId,
   accountHolder,
@@ -58,6 +62,7 @@ const TransactionList = ({
     Transaction | undefined
   >();
   const [isUploadFileOpen, setUploadFileOpen] = useBoolean();
+  const [filterText, setFilterText] = useState('');
 
   const toast = useToast();
 
@@ -66,7 +71,7 @@ const TransactionList = ({
     queryFn: () =>
       BankAccountService.getTransactionsByAccountAndDate(
         accountId,
-        new Date(2025, 1, 1)
+        initialTransdactionDate
       ),
   });
 
@@ -184,6 +189,24 @@ const TransactionList = ({
     setSelectedTransaction(transaction);
   };
 
+  const reprocessUndefinedTypes = async () => {
+    const responseSuccess = await BankAccountService.reprocessUndefinedTypes(
+      accountId,
+      initialTransdactionDate
+    );
+    refetch();
+
+    toast({
+      title: responseSuccess
+        ? 'Reprocessed and Reload finished'
+        : 'There was an error reprocessing',
+      position: 'top',
+      status: responseSuccess ? 'success' : 'error',
+      duration: 3000,
+      isClosable: true,
+    });
+  };
+
   const handleAddTransaction = () =>
     // e: React.MouseEvent<HTMLButtonElement, MouseEvent>
     {
@@ -231,6 +254,36 @@ const TransactionList = ({
     return <span>Error: {error.message}</span>;
   }
 
+  // Filter the transactions based on the filter text
+  const parsedDate = parse(filterText, 'dd/MM/yyyy', new Date());
+  const filterTextSanetized = filterText.toLowerCase().trim();
+  const filteredData = data.filter((transactionItem) => {
+    // Check if the filter text is a valid date
+    if (isValid(parsedDate)) {
+      return transactionItem.transactionDate
+        .toISOString()
+        .startsWith(parsedDate.toISOString().split('T')[0]);
+    }
+
+    // Check if the filter text is a number
+    const filterNumber = parseFloat(
+      filterText.replace('.', '').replace(',', '.')
+    );
+    if (!Number.isNaN(filterNumber)) {
+      return transactionItem.amount === filterNumber;
+    }
+
+    if (!transactionItem.description) return false;
+
+    let descriptionSanitized = transactionItem.description.toLowerCase().trim();
+    while (descriptionSanitized.includes('  ')) {
+      descriptionSanitized = descriptionSanitized.replace('  ', ' ');
+    }
+
+    // Default to filtering by description
+    return descriptionSanitized.includes(filterTextSanetized);
+  });
+
   return (
     <Flex
       direction="column"
@@ -258,13 +311,30 @@ const TransactionList = ({
           <Button colorScheme="yellow" onClick={handleUploadCsvFile}>
             Upload Csv File
           </Button>
+          <Button colorScheme="yellow" onClick={reprocessUndefinedTypes}>
+            Redefine Undefined Types
+          </Button>
         </ButtonGroup>
       </Flex>
 
-      <TableContainer>
+      <Flex alignItems="center" justifyContent="center" mb={4} w="full">
+        <span>Filter by description</span>
+        <Input
+          placeholder="Filter by description"
+          value={filterText}
+          onChange={(e) => setFilterText(e.target.value)}
+          maxW="300px"
+        />
+      </Flex>
+
+      <TableContainer maxH="600px" overflowY="auto">
         <Table size="sm" variant="striped">
-          <Thead>
-            <Tr>
+          <Thead position="sticky" top={0}>
+            <Tr
+              bgColor={
+                colorMode === 'light' ? 'whiteAlpha.900' : 'blackAlpha.900'
+              }
+            >
               <Th />
               <Th>Id</Th>
               <Th>Date</Th>
@@ -278,7 +348,7 @@ const TransactionList = ({
             </Tr>
           </Thead>
           <Tbody>
-            {data.map((transactionItem) => (
+            {filteredData.map((transactionItem) => (
               <Tr
                 key={transactionItem.id}
                 _hover={{
@@ -305,7 +375,10 @@ const TransactionList = ({
                 </Td>
                 <Td>{transactionItem.transferenceBetweenAccounts}</Td>
                 <Td>{transactionItem.capitalizationEvent}</Td>
-                <Td isNumeric>
+                <Td
+                  isNumeric
+                  color={transactionItem.amount < 0 ? 'red.500' : 'green.500'}
+                >
                   {transactionItem.amount.toLocaleString(undefined, {
                     minimumFractionDigits: 2,
                   })}
@@ -328,6 +401,7 @@ const TransactionList = ({
           </Tfoot> */}
         </Table>
       </TableContainer>
+
       {isAddOrUpdateOpen && (
         <TransactionAddOrUpdate
           isOpen={isAddOrUpdateOpen}
