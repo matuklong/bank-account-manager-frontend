@@ -44,7 +44,7 @@ type TransactionAddOrUpdateProps = {
 type TransactionAddOrUpdateForm = {
   transactionDate: Date;
   description: string;
-  amount: number;
+  amount: string;
   transactionTypeId?: number;
   capitalizationEvent: boolean;
   transferenceBetweenAccounts: boolean;
@@ -67,7 +67,36 @@ const TransactionAddOrUpdate = ({
   const schema = yup.object().shape({
     transactionDate: yup.date().required(),
     description: yup.string().required(),
-    amount: yup.number().required(),
+    amount: yup
+      .string()
+      .required('Amount is required')
+      .transform((value) => {
+        const locale = navigator.language || 'en-US'; // Get the browser's locale or fallback to 'en-US'
+        const formatter = new Intl.NumberFormat(locale);
+        const parts = formatter.formatToParts(12345.67); // Example number to detect separators
+        const decimalSeparator =
+          parts.find((part) => part.type === 'decimal')?.value || '.';
+        const groupSeparator =
+          parts.find((part) => part.type === 'group')?.value || ',';
+
+        // Remove invalid characters (letters, extra symbols)
+        const sanitizedValue = value.replace(/[^0-9.,]/g, '');
+
+        // Replace group separator and normalize decimal separator
+        const normalizedValue = sanitizedValue
+          .replace(new RegExp(`\\${groupSeparator}`, 'g'), '')
+          .replace(decimalSeparator, '.');
+
+        // Parse the normalized value into a number
+        const parsedValue = parseFloat(normalizedValue);
+
+        // Return the parsed value as a string or null if invalid
+        return Number.isNaN(parsedValue) ? null : parsedValue.toString();
+      })
+      .test('is-valid-number', 'Invalid number format', (value) => {
+        const parsedValue = parseFloat(value); // Convert string to number
+        return !Number.isNaN(parsedValue); // Check if it's a valid number
+      }),
     transactionTypeId: yup.number(),
     capitalizationEvent: yup.boolean().required(),
     transferenceBetweenAccounts: yup.boolean().required(),
@@ -83,9 +112,9 @@ const TransactionAddOrUpdate = ({
     resolver: yupResolver(schema),
     mode: 'onChange',
     defaultValues: {
-      transactionDate: transactionItem?.transactionDate,
+      transactionDate: transactionItem?.transactionDate ?? new Date(),
       description: transactionItem?.description ?? '',
-      amount: transactionItem?.amount,
+      amount: transactionItem?.amount?.toString() ?? '',
       transactionTypeId: transactionItem?.transactionTypeId,
       capitalizationEvent: transactionItem?.capitalizationEvent ?? false,
       transferenceBetweenAccounts:
@@ -102,7 +131,7 @@ const TransactionAddOrUpdate = ({
         id: transactionItem?.id,
         transactionDate: data.transactionDate,
         description: data.description,
-        amount: data.amount,
+        amount: parseFloat(data.amount),
         transactionTypeId: data.transactionTypeId,
         capitalizationEvent: data.capitalizationEvent,
         transferenceBetweenAccounts: data.transferenceBetweenAccounts,

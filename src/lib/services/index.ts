@@ -31,7 +31,7 @@ const getAllAccounts = async (): Promise<Account[]> => {
 
 const getAccountById = async (accountId: number): Promise<Account[]> => {
   const response = await apiClient.get<Account[]>(
-    `/account?accountId=${accountId}`
+    `/api/account?accountId=${accountId}`
   );
   return response.data.map(
     (rest): Account => ({
@@ -77,7 +77,7 @@ const getTransactionTypeList = async (): Promise<TransactionType[]> => {
 const addOrUpdateTransaction = async (
   createOrUpdateTransactionDTO: CreateOrUpdateTransactionDTO
 ): Promise<Transaction | undefined> => {
-  const updateURL = `/transaction`;
+  const updateURL = `/api/transaction`;
   const response = await apiClient.post<Transaction[]>(updateURL, [
     createOrUpdateTransactionDTO,
   ]);
