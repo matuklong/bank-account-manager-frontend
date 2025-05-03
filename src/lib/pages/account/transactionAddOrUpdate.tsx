@@ -82,7 +82,7 @@ const TransactionAddOrUpdate = ({
           parts.find((part) => part.type === 'group')?.value || ',';
 
         // Remove invalid characters (letters, extra symbols)
-        const sanitizedValue = value.replace(/[^0-9.,]/g, '');
+        const sanitizedValue = value.replace(/[^0-9.,-]/g, '');
 
         // Replace group separator and normalize decimal separator
         const normalizedValue = sanitizedValue
@@ -116,7 +116,7 @@ const TransactionAddOrUpdate = ({
     defaultValues: {
       transactionDate: transactionItem?.transactionDate ?? new Date(),
       description: transactionItem?.description ?? '',
-      amount: transactionItem?.amount?.toString() ?? '',
+      amount: transactionItem?.amount?.toLocaleString() ?? '',
       transactionTypeId: transactionItem?.transactionTypeId,
       capitalizationEvent: transactionItem?.capitalizationEvent ?? false,
       transferenceBetweenAccounts:

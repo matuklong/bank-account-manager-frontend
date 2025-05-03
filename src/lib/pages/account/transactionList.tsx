@@ -123,7 +123,7 @@ const TransactionList = ({
       queryClient.setQueryData(
         ['transactions', item.accountId],
         (prev: Transaction[]) => {
-          if (prev.length > 0) handleAccountRefresh(prev[0].accountId);
+          handleAccountRefresh(item.accountId);
 
           let newArray = [];
           if (prev.some((e) => e.id === item.id)) {
@@ -311,7 +311,7 @@ const TransactionList = ({
           <Button colorScheme="yellow" onClick={handleUploadCsvFile}>
             Upload Csv File
           </Button>
-          <Button colorScheme="yellow" onClick={reprocessUndefinedTypes}>
+          <Button colorScheme="blue" onClick={reprocessUndefinedTypes}>
             Redefine Undefined Types
           </Button>
         </ButtonGroup>
