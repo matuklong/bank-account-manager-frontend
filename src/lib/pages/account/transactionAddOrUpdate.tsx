@@ -31,6 +31,11 @@ import type { CreateOrUpdateTransactionDTO, Transaction } from '~/lib/types';
 
 registerLocale('pt', pt);
 
+// number validation values
+const locale = navigator.language || 'en-US'; // Get the browser's locale or fallback to 'en-US'
+const formatter = new Intl.NumberFormat(locale);
+const parts = formatter.formatToParts(12345.67); // Example number to detect separators
+
 type TransactionAddOrUpdateProps = {
   transactionItem?: Transaction;
   accountId: number;
@@ -71,9 +76,6 @@ const TransactionAddOrUpdate = ({
       .string()
       .required('Amount is required')
       .transform((value) => {
-        const locale = navigator.language || 'en-US'; // Get the browser's locale or fallback to 'en-US'
-        const formatter = new Intl.NumberFormat(locale);
-        const parts = formatter.formatToParts(12345.67); // Example number to detect separators
         const decimalSeparator =
           parts.find((part) => part.type === 'decimal')?.value || '.';
         const groupSeparator =
