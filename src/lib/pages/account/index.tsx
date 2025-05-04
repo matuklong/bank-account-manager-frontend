@@ -8,16 +8,20 @@ import {
   Th,
   Td,
   TableContainer,
+  Tfoot,
   Flex,
   Radio,
   useColorMode,
   CircularProgress,
   useToast,
+  Button,
+  useBoolean,
 } from '@chakra-ui/react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { AxiosError } from 'axios';
 import { useState } from 'react';
 
+import AccountInvestmentAddProps from '~/lib/pages/account/accountInvestmentAdd';
 import TransactionList from '~/lib/pages/account/transactionList';
 import BankAccountService from '~/lib/services';
 import type { Account } from '~/lib/types';
@@ -25,8 +29,10 @@ import type { Account } from '~/lib/types';
 const AccountList = () => {
   const { colorMode } = useColorMode();
 
+  const [isAccountInvestmentAdd, setAccountInvestmentAdd] = useBoolean();
+
   const queryClient = useQueryClient();
-  const { isPending, isError, data, error } = useQuery({
+  const { isPending, isError, data, error, refetch } = useQuery({
     queryKey: ['accounts'],
     queryFn: () => BankAccountService.getAllAccounts(),
   });
@@ -40,7 +46,7 @@ const AccountList = () => {
         await BankAccountService.getAccountById(accountId);
 
       if (!refreshedAccount || refreshedAccount.length === 0) {
-        throw new Error(`Failed to refres account accountId: ${accountId}`);
+        throw new Error(`Failed to refresh account accountId: ${accountId}`);
       }
 
       return refreshedAccount[0];
@@ -137,13 +143,30 @@ const AccountList = () => {
               </Tr>
             ))}
           </Tbody>
-          {/* <Tfoot>
+          <Tfoot>
             <Tr>
-              <Th>To convert</Th>
-              <Th>into</Th>
-              <Th isNumeric>multiply by</Th>
+              <Th />
+              <Th />
+              <Th />
+              <Th>
+                <Button colorScheme="blue" onClick={setAccountInvestmentAdd.on}>
+                  Add Investiments
+                </Button>
+              </Th>
+              <Th>Total: </Th>
+              <Th isNumeric>
+                {data
+                  .reduce(
+                    (accumulator, accountItem) =>
+                      accumulator + (accountItem?.balance ?? 0),
+                    0
+                  )
+                  .toLocaleString(undefined, {
+                    minimumFractionDigits: 2,
+                  })}
+              </Th>
             </Tr>
-          </Tfoot> */}
+          </Tfoot>
         </Table>
       </TableContainer>
       {selectedAcount?.id && (
@@ -155,6 +178,12 @@ const AccountList = () => {
           handleAccountRefresh={handleAccountRefresh}
         />
       )}
+      <AccountInvestmentAddProps
+        accountList={data}
+        refetch={refetch}
+        isOpen={isAccountInvestmentAdd}
+        onClose={setAccountInvestmentAdd.off}
+      />
     </Flex>
   );
 };

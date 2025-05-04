@@ -28,13 +28,9 @@ import 'react-datepicker/dist/react-datepicker.css';
 
 import BankAccountService from '~/lib/services';
 import type { CreateOrUpdateTransactionDTO, Transaction } from '~/lib/types';
+import { parseStringCurrency } from '~/lib/util';
 
 registerLocale('pt', pt);
-
-// number validation values
-const locale = navigator.language || 'en-US'; // Get the browser's locale or fallback to 'en-US'
-const formatter = new Intl.NumberFormat(locale);
-const parts = formatter.formatToParts(12345.67); // Example number to detect separators
 
 type TransactionAddOrUpdateProps = {
   transactionItem?: Transaction;
@@ -76,24 +72,9 @@ const TransactionAddOrUpdate = ({
       .string()
       .required('Amount is required')
       .transform((value) => {
-        const decimalSeparator =
-          parts.find((part) => part.type === 'decimal')?.value || '.';
-        const groupSeparator =
-          parts.find((part) => part.type === 'group')?.value || ',';
-
-        // Remove invalid characters (letters, extra symbols)
-        const sanitizedValue = value.replace(/[^0-9.,-]/g, '');
-
-        // Replace group separator and normalize decimal separator
-        const normalizedValue = sanitizedValue
-          .replace(new RegExp(`\\${groupSeparator}`, 'g'), '')
-          .replace(decimalSeparator, '.');
-
-        // Parse the normalized value into a number
-        const parsedValue = parseFloat(normalizedValue);
-
+        const result = parseStringCurrency(value);
         // Return the parsed value as a string or null if invalid
-        return Number.isNaN(parsedValue) ? null : parsedValue.toString();
+        return result?.toString();
       })
       .test('is-valid-number', 'Invalid number format', (value) => {
         const parsedValue = parseFloat(value); // Convert string to number
