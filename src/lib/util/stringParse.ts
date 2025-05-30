@@ -42,7 +42,7 @@ export const parseInvestmentData = (text: string): InvestmentItem[] => {
   // 7,63%	R$ 12.759,37
   // 39,66%	1.456.151,66	resgatar	aplicar
   const regExpComponent =
-    /^([\wáàãâêéíïóôõúç ]+)\tR\$ [0-9.,]+\n.*\n.*\n.*\n.*\n.*\n.*\t([0-9.,]+)\tresgatar\taplicar.*$/gm;
+    /^([\wáàãâêéíïóôõúç ]+)\tR\$ [-0-9.,]+\n.*\n.*\n.*\n.*\n.*\n.*\t([0-9.,]+)\tresgatar\taplicar.*$/gm;
   // CDB-DI
   // -
   // Nenhum valor
