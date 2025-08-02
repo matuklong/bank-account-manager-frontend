@@ -97,7 +97,9 @@ const TransactionUploadFile = ({
   };
 
   const fileTypeTest: yup.TestFunction<File[] | null> = (value) => {
-    return value && value.length === 1 ? value[0].type === 'text/csv' : false; // Accept only CSV files
+    return value && value.length === 1
+      ? value[0].type === 'text/csv' || value[0].type === 'text/plain'
+      : false; // Accept only CSV and TXT files
   };
 
   const schema = yup.object({
@@ -210,7 +212,7 @@ const TransactionUploadFile = ({
                 id="fileUpload"
                 type="file"
                 {...register('fileUpload')}
-                accept=".csv"
+                accept=".csv,.txt"
                 onChange={handleFileChange} // Detect file change
               />
               <FormErrorMessage>
