@@ -43,7 +43,23 @@ type TransactionListProps = {
   handleAccountRefresh: (accountId: number) => void;
 };
 
-const initialTransdactionDate = new Date(2025, 1, 1);
+const getFirstDayOfThreeMonthsAgo = (): Date => {
+  const today = new Date();
+  // Calculate the correct year and month
+  let year = today.getFullYear();
+  let month = today.getMonth() - 3;
+
+  // Handle negative months by adjusting the year
+  if (month < 0) {
+    month += 12; // Convert to positive month index
+    year -= 1; // Go back one year
+  }
+
+  // Create date for first day of the calculated month and year
+  return new Date(year, month, 1);
+};
+
+const initialTransactionDate = getFirstDayOfThreeMonthsAgo();
 
 const TransactionList = ({
   accountId,
@@ -71,7 +87,7 @@ const TransactionList = ({
     queryFn: () =>
       BankAccountService.getTransactionsByAccountAndDate(
         accountId,
-        initialTransdactionDate
+        initialTransactionDate
       ),
   });
 
@@ -192,7 +208,7 @@ const TransactionList = ({
   const reprocessUndefinedTypes = async () => {
     const responseSuccess = await BankAccountService.reprocessUndefinedTypes(
       accountId,
-      initialTransdactionDate
+      initialTransactionDate
     );
     refetch();
 
@@ -258,19 +274,31 @@ const TransactionList = ({
   const parsedDate = parse(filterText, 'dd/MM/yyyy', new Date());
   const filterTextSanetized = filterText.toLowerCase().trim();
   const filteredData = data.filter((transactionItem) => {
+    if (
+      transactionItem.description &&
+      transactionItem.description.indexOf('undefined') >= 0
+    )
+      return true;
+
     // Check if the filter text is a valid date
-    if (isValid(parsedDate)) {
-      return transactionItem.transactionDate
+    if (
+      isValid(parsedDate) &&
+      transactionItem.transactionDate
         .toISOString()
-        .startsWith(parsedDate.toISOString().split('T')[0]);
+        .startsWith(parsedDate.toISOString().split('T')[0])
+    ) {
+      return true;
     }
 
     // Check if the filter text is a number
     const filterNumber = parseFloat(
       filterText.replace('.', '').replace(',', '.')
     );
-    if (!Number.isNaN(filterNumber)) {
-      return transactionItem.amount === filterNumber;
+    if (
+      !Number.isNaN(filterNumber) &&
+      transactionItem.amount === filterNumber
+    ) {
+      return true;
     }
 
     if (!transactionItem.description) return false;
