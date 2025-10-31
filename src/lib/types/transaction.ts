@@ -77,6 +77,7 @@ export interface TransactionUploadFileDTO {
 }
 
 export interface TransactionUploadFileResponseDTO {
+  accountBalance: number;
   items: TransactionUploadFileResponseItemDTO[];
 }
 

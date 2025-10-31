@@ -6,7 +6,6 @@ import type {
   TransactionType,
   TransactionUploadFileDTO,
   TransactionUploadFileResponseDTO,
-  TransactionUploadFileResponseItemDTO,
 } from '~/lib/types';
 import { Transaction } from '~/lib/types';
 
@@ -116,13 +115,17 @@ const uploadFile = async (
   );
   formData.append('accountId', transactionUploadFile.accountId.toString());
 
-  const response = await apiClient.post<TransactionUploadFileResponseItemDTO[]>(
+  const response = await apiClient.post<TransactionUploadFileResponseDTO>(
     urlEndpoint,
     formData,
     header
   );
-  if (response.data.length > 0) return { items: response.data };
-  return { items: [] };
+  if (response.data?.items.length > 0)
+    return {
+      items: response.data.items,
+      accountBalance: response.data.accountBalance,
+    };
+  return { items: [], accountBalance: 0 };
 };
 
 const uploadFileTransactionParse = async (

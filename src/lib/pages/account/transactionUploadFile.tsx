@@ -69,7 +69,7 @@ const initiateTransactionUploadFileScreenData =
       parsePhase: true,
       processPhase: false,
       endPhase: false,
-      transactionUploadFileResponseDTO: { items: [] },
+      transactionUploadFileResponseDTO: { items: [], accountBalance: 0 },
     };
   };
 
@@ -147,7 +147,7 @@ const TransactionUploadFile = ({
         // Make the file list empty to show the new processed data.
         setUploadScreenPhase({
           ...uploadScreenPhase,
-          transactionUploadFileResponseDTO: { items: [] },
+          transactionUploadFileResponseDTO: { items: [], accountBalance: 0 },
         });
         response = await uploadFileTransactionParse(requestData);
         setUploadScreenPhase({
@@ -160,7 +160,7 @@ const TransactionUploadFile = ({
         // Make the file list empty to show the new processed data.
         setUploadScreenPhase({
           ...uploadScreenPhase,
-          transactionUploadFileResponseDTO: { items: [] },
+          transactionUploadFileResponseDTO: { items: [], accountBalance: 0 },
         });
         response = await uploadFileTransactionProcess(requestData);
         setUploadScreenPhase({
@@ -222,10 +222,22 @@ const TransactionUploadFile = ({
 
             {isSubmitting && <p>Uploading...</p>}
             {!isSubmitting && uploadScreenPhase.processPhase && (
-              <h4>Parsed Result</h4>
+              <h4>
+                Parsed Result - New Balance:{' '}
+                {uploadScreenPhase.transactionUploadFileResponseDTO.accountBalance.toLocaleString(
+                  undefined,
+                  { minimumFractionDigits: 2 }
+                )}
+              </h4>
             )}
             {!isSubmitting && uploadScreenPhase.endPhase && (
-              <h4>Processed Result</h4>
+              <h4>
+                Processed Result - New Balance:{' '}
+                {uploadScreenPhase.transactionUploadFileResponseDTO.accountBalance.toLocaleString(
+                  undefined,
+                  { minimumFractionDigits: 2 }
+                )}
+              </h4>
             )}
 
             {uploadScreenPhase.transactionUploadFileResponseDTO.items.length >
