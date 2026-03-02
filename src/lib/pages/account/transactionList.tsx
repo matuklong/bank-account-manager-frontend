@@ -401,8 +401,10 @@ const TransactionList = ({
                     { minimumFractionDigits: 2 }
                   )}
                 </Td>
-                <Td>{transactionItem.transferenceBetweenAccounts}</Td>
-                <Td>{transactionItem.capitalizationEvent}</Td>
+                <Td>
+                  {transactionItem.transferenceBetweenAccounts ? 'T' : ''}
+                </Td>
+                <Td>{transactionItem.capitalizationEvent ? 'T' : ''}</Td>
                 <Td
                   isNumeric
                   color={transactionItem.amount < 0 ? 'red.500' : 'green.500'}

@@ -80,7 +80,9 @@ const TransactionAddOrUpdate = ({
         const parsedValue = parseFloat(value); // Convert string to number
         return !Number.isNaN(parsedValue); // Check if it's a valid number
       }),
-    transactionTypeId: yup.number(),
+    transactionTypeId: yup
+      .number()
+      .transform((value) => (!value ? undefined : value)),
     capitalizationEvent: yup.boolean().required(),
     transferenceBetweenAccounts: yup.boolean().required(),
   });
@@ -260,6 +262,7 @@ const TransactionAddOrUpdate = ({
                 // defaultValue={transactionItem?.transactionTypeId ?? false} // Set the initial value to the current date
                 render={({ field: { onChange, value } }) => (
                   <Select size="lg" onChange={onChange}>
+                    <option>-</option>
                     {transactionTypeQuery.data?.map((item) => (
                       <option
                         key={item.id}
